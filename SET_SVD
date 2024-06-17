@@ -1,0 +1,66 @@
+normalSum = [];
+for i = [1:3]
+    name = sprintf('chb09_%d.edf',i);
+    [hdr, record1] = edfread(name);
+
+    for k = [1:23]
+        [IF Te1{k} tfr] = SET_Y(record1(k,1:256)',35);
+        trainData1{k} = abs(Te1{k});
+        trainDataMean1{k} = mean(trainData1{k});
+        centdata1{k}=trainData1{k}-trainDataMean1{k};
+        centdata1{k} = centdata1{k}';
+        [u1{k},s1{k},v1{k}]=svd(centdata1{k});
+        cTwo{k}=u1{k}(:,1:10)*s1{k}(1:10,1:10);
+        
+    end
+    cTwo1 = cell2mat(cTwo);
+    normalSum = cat(1, normalSum, cTwo1);
+    %baseFileName = sprintf('ccTwo%d.mat', i);
+    %save(baseFileName, baseFileName, cTwo1);
+end
+[rows columns] = size(normalSum);
+z = zeros(rows,1);
+%%
+preseizureSum = [];
+
+[hdr, record1] = edfread('chb02_16+.edf');
+
+for k = [1:23]
+    a =  2972;
+    [IF Te1{k} tfr] = SET_Y(record1(k,a*256-256*600:(a*256+255)-256*600)',35);
+    trainData1{k} = abs(Te1{k});
+    trainDataMean1{k} = mean(trainData1{k});
+    centdata1{k}=trainData1{k}-trainDataMean1{k};
+    centdata1{k} = centdata1{k}';
+    [u1{k},s1{k},v1{k}]=svd(centdata1{k});
+    cTwo{k}=u1{k}(:,1:10)*s1{k}(1:10,1:10);
+end
+cTwo16 = cell2mat(cTwo);
+preseizureSum = cat(1, preseizureSum, cTwo16);
+%%
+[hdr, record1] = edfread('chb02_19.edf');
+
+for k = [1:23]
+    a = 3369;
+    [IF Te1{k} tfr] = SET_Y(record1(k,a*256-256*600:(a*256+255)-256*600)',35);
+    trainData1{k} = abs(Te1{k});
+    trainDataMean1{k} = mean(trainData1{k});
+    centdata1{k}=trainData1{k}-trainDataMean1{k};
+    centdata1{k} = centdata1{k}';
+    [u1{k},s1{k},v1{k}]=svd(centdata1{k});
+    cTwo{k}=u1{k}(:,1:10)*s1{k}(1:10,1:10);
+end
+cTwo166 = cell2mat(cTwo);
+preseizureSum = cat(1, preseizureSum, cTwo166);
+%baseFileName = sprintf('ccTwo%d.mat', i);
+%save(baseFileName, baseFileName, cTwo1);
+
+
+%%
+[rows columns] = size(preseizureSum);
+o = ones(rows,1);
+%%
+x231 = cat(1, z, o);
+SET2_new = cat(2,cat(1, normalSum, preseizureSum),x231);
+save('SET2_new','SET2_new');
+xlswrite('C:\Users\User\OneDrive\Desktop\Journal3\Data_set_fft\SET2_new.xls', SET2_new)
