@@ -1,0 +1,55 @@
+normalSum = [];
+for i = [1:4,10:17]
+    name = sprintf('chb09_%d.edf',i);
+    [hdr, record1] = edfread(name);
+
+    for k = [1:23]
+        STFT{k} = stft((record1(k,1:720)),'Window',kaiser(10,5),'OverlapLength',5,'FFTLength',10);
+        trainData1{k} = abs(STFT{k});
+        trainData1{k} = trainData1{k}';
+    end
+    cTwo1 = cell2mat(trainData1);
+    
+    normalSum = cat(1, normalSum, cTwo1);
+    %baseFileName = sprintf('ccTwo%d.mat', i);
+    %save(baseFileName, baseFileName, cTwo1);
+end
+%%
+[rows columns] = size(normalSum);
+z = zeros(rows,1);
+%%
+preseizureSum = [];
+
+[hdr, record1] = edfread('chb09_06.edf');
+
+for k = [1:23]
+    a = 12231;
+        STFT{k} = stft((record1(k,a*256-256*600:(a*256+719)-256*600)),'Window',kaiser(10,5),'OverlapLength',5,'FFTLength',10);
+        trainData1{k} = abs(STFT{k});
+        trainData1{k} = trainData1{k}';
+ end
+cTwo16 = cell2mat(trainData1);
+preseizureSum = cat(1, preseizureSum, cTwo16);
+%%
+[hdr, record1] = edfread('chb09_19.edf');
+
+for k = [1:23]
+    a = 5299;
+    STFT{k} = stft((record1(k,a*256-256*600:(a*256+719)-256*600)),'Window',kaiser(10,5),'OverlapLength',5,'FFTLength',10);
+    trainData1{k} = abs(STFT{k});
+    trainData1{k} = trainData1{k}';
+ end
+cTwo166 = cell2mat(trainData1);
+preseizureSum = cat(1, preseizureSum, cTwo166);
+%baseFileName = sprintf('ccTwo%d.mat', i);
+%save(baseFileName, baseFileName, cTwo1);
+
+
+%%
+[rows columns] = size(preseizureSum);
+o = ones(rows,1);
+%%
+x231 = cat(1, z, o);
+STFT9 = cat(2,cat(1, normalSum, preseizureSum),x231);
+save('STFT9','STFT9');
+xlswrite('C:\Users\User\OneDrive\Desktop\Journal3\Data_set_fft\STFT9.xls', STFT9)
